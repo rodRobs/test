@@ -28,6 +28,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
     private final JwtProvider jwtProvider;
 
+    @Autowired
     private final UserDetailsServiceImpl userDetailsService;
 
     @Override

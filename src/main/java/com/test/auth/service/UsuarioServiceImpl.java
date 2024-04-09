@@ -1,11 +1,16 @@
 package com.test.auth.service;
 
 import com.test.auth.dto.TokenDTO;
-import com.test.clientes.entity.Cliente;
 import com.test.exceptions.BadRequestException;
 import com.test.exceptions.NotFoundException;
+import com.test.exceptions.UnauthorizedException;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.test.utils.GenericCrudService;
@@ -13,20 +18,31 @@ import com.test.auth.dto.UsuarioDTO;
 import com.test.auth.repository.UsuarioRepository;
 import com.test.auth.entity.Usuario;
 
+import java.util.Base64;
 import java.util.List;
 import java.util.Objects;
 
-import com.test.utils.SingletonValidatorConstraints;
+import com.test.utils.*;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.test.auth.jwt.JwtProvider;
 
 @Service
 @Slf4j
-public class UsuarioServiceImpl implements UsuarioService, GenericCrudService<UsuarioDTO> {
+public class UsuarioServiceImpl implements UsuarioService, GenericCrudService<UsuarioDTO>, AuthenticationManager {
+
+    private static final String AUTHENTICATION_ERROR = "Error de autenticación";
+    private static final String USER_INACTIVE = "Usuario no activo";
 
     @Autowired
     UsuarioRepository usuarioRepository;
 
+    @Autowired
+    JwtProvider jwtProvider;
+
     private SingletonValidatorConstraints singletonValidatorConstraints = SingletonValidatorConstraints.getInstance();
+
+    private SingletonPasswordEncoder singletonPasswordEncoder = SingletonPasswordEncoder.getInstance();
 
     @Override
     @Transactional(readOnly = true)
@@ -40,8 +56,20 @@ public class UsuarioServiceImpl implements UsuarioService, GenericCrudService<Us
     }
 
     @Override
+    @Transactional(readOnly = true)
     public TokenDTO login(UsuarioDTO usuarioDTO) {
-        return null;
+        log.debug("AuthServiceImpl::login {}", usuarioDTO);
+        singletonValidatorConstraints.validatorConstraints(usuarioDTO);
+        String authPassword = decodePassword(usuarioDTO.getContrasena());
+        Authentication authentication = authenticate(new UsernamePasswordAuthenticationToken(usuarioDTO.getCorreo(), authPassword));
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        String jwt = jwtProvider.generateToken(authentication);
+        return new TokenDTO(jwt);
+    }
+
+    public String decodePassword(String userPassword) {
+        byte[] decodedBytes = Base64.getDecoder().decode(userPassword);
+        return new String(decodedBytes);
     }
 
     public UsuarioDTO entityToDto(Usuario usuario) {
@@ -126,5 +154,23 @@ public class UsuarioServiceImpl implements UsuarioService, GenericCrudService<Us
         log.debug("UsuarioServiceImpl::deleteById {}", id);
         validateExistsUsuario(id);
         usuarioRepository.deleteById(id);
+    }
+
+    @SneakyThrows
+    @Override
+    public Authentication authenticate(Authentication authentication) {
+        log.debug("AuthServiceImpl::authenticate {}", authentication);
+        UsuarioDTO usuarioDTO = findByCorreo(authentication.getName());
+        usuarioIsActivo(usuarioDTO.isActivo());
+        if (singletonPasswordEncoder.passwordEncoder().matches(authentication.getCredentials().toString(), usuarioDTO.getContrasena())) {
+            return new UsernamePasswordAuthenticationToken(authentication.getPrincipal(), authentication.getCredentials(), usuarioDTO.getAuthorities());
+        } else {
+            throw new UnauthorizedException(AUTHENTICATION_ERROR);
+        }
+    }
+
+    public void usuarioIsActivo(boolean activo) {
+        if (!activo)
+            throw new UnauthorizedException(USER_INACTIVE);
     }
 }

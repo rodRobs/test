@@ -10,6 +10,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -23,7 +24,7 @@ public class Usuario implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_usuario")
-    private int idUsuario;
+    private Integer idUsuario;
 
     @Column(name = "correo", length = 80, nullable = false, unique = true)
     private String correo;
@@ -35,6 +36,10 @@ public class Usuario implements Serializable {
     @Column(name = "fecha_creacion")
     private LocalDateTime fechaCreacion;
 
-    private Set<Rol> roles;
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = "roles_usuario", joinColumns = @JoinColumn(name = "id_usuario"), inverseJoinColumns = @JoinColumn(name = "id_rol"))
+    private Set<Rol> rolesUsuario = new HashSet<>();
+
+    private boolean activo;
 
 }

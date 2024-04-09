@@ -26,4 +26,11 @@ public class ApiHandlerException {
         return new MessageError(exception, request.getRequestURI());
     }
 
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    @ExceptionHandler({UnauthorizedException.class})
+    @ResponseBody
+    public MessageError unauthorizationException(HttpServletRequest request, Exception exception) {
+        return new MessageError(exception, request.getRequestURI());
+    }
+
 }

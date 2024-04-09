@@ -29,7 +29,7 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<TokenDTO> login(@RequestBody UsuarioDTO usuarioDTO) {
-        return null;
+        return new ResponseEntity<>(usuarioService.login(usuarioDTO), HttpStatus.OK);
     }
 
 }
