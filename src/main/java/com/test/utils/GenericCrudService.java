@@ -2,16 +2,16 @@ package com.test.utils;
 
 import java.util.List;
 
-public interface GenericCrudService<T> {
+public interface GenericCrudService<T, ID> {
 
     List<T> findAll();
 
-    T findById(int id);
+    T findById(ID id);
 
     T save(T object);
 
-    T update(int id, T object);
+    T update(ID id, T object);
 
-    void deleteById(int id);
+    void deleteById(ID id);
 
 }

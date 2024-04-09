@@ -5,15 +5,18 @@ import com.test.productos.entity.Producto;
 import com.test.productos.repository.ProductoRepository;
 import com.test.utils.GenericCrudService;
 import com.test.productos.dto.ProductoDTO;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 import com.test.utils.*;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
-public class ProductoServiceImpl implements GenericCrudService<ProductoDTO>{
+@Slf4j
+public class ProductoServiceImpl implements GenericCrudService<ProductoDTO, Integer>{
 
     @Autowired
     ProductoRepository productoRepository;
@@ -21,7 +24,9 @@ public class ProductoServiceImpl implements GenericCrudService<ProductoDTO>{
     SingletonValidatorConstraints singletonValidatorConstraints = SingletonValidatorConstraints.getInstance();
 
     @Override
+    @Transactional(readOnly = true)
     public List<ProductoDTO> findAll() {
+        log.debug("ProductoServiceImpl::findAll");
         List<Producto> productoList = productoRepository.findAll();
         return productoList.stream().map(producto -> entityToDto(producto)).toList();
     }
@@ -36,7 +41,9 @@ public class ProductoServiceImpl implements GenericCrudService<ProductoDTO>{
     }
 
     @Override
-    public ProductoDTO findById(int id) {
+    @Transactional(readOnly = true)
+    public ProductoDTO findById(Integer id) {
+        log.debug("ProductoServiceImpl::findById {}", id);
         Producto producto = productoRepository.findById(id).orElseThrow(() -> {
             messageErrorNotFound(id);
             return null;
@@ -49,6 +56,7 @@ public class ProductoServiceImpl implements GenericCrudService<ProductoDTO>{
     }
 
     @Override
+    @Transactional
     public ProductoDTO save(ProductoDTO object) {
         singletonValidatorConstraints.validatorConstraints(object);
         Producto producto = dtoToEntity(object);
@@ -66,7 +74,9 @@ public class ProductoServiceImpl implements GenericCrudService<ProductoDTO>{
     }
 
     @Override
-    public ProductoDTO update(int id, ProductoDTO object) {
+    @Transactional
+    public ProductoDTO update(Integer id, ProductoDTO object) {
+        log.debug("ProductoServiceImpl::update {}, {}", id, object);
         singletonValidatorConstraints.validatorConstraints(object);
         validateExistsProducto(id);
         Producto producto = dtoToEntity(object);
@@ -75,17 +85,19 @@ public class ProductoServiceImpl implements GenericCrudService<ProductoDTO>{
     }
 
     public void validateExistsProducto(int id) {
-        boolean existsProducto = existsProcucto(id);
+        boolean existsProducto = existsProducto(id);
         if (!existsProducto)
             messageErrorNotFound(id);
     }
 
-    public boolean existsProcucto(int id) {
+    public boolean existsProducto(int id) {
         return productoRepository.existsById(id);
     }
 
     @Override
-    public void deleteById(int id) {
+    @Transactional
+    public void deleteById(Integer id) {
+        log.debug("ProductoServiceImpl::deleteById {}", id);
         validateExistsProducto(id);
         productoRepository.deleteById(id);
     }

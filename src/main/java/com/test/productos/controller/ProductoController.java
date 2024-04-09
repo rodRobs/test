@@ -15,7 +15,7 @@ import java.util.List;
 public class ProductoController {
 
     @Autowired
-    GenericCrudService<ProductoDTO> genericCrudService;
+    GenericCrudService<ProductoDTO, Integer> genericCrudService;
 
     @GetMapping
     public ResponseEntity<List<ProductoDTO>> findAll() {

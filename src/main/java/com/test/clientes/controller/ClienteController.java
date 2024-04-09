@@ -15,7 +15,7 @@ import java.util.List;
 public class ClienteController {
 
     @Autowired
-    GenericCrudService<ClienteDTO> genericCRUDService;
+    GenericCrudService<ClienteDTO, Integer> genericCRUDService;
 
     @GetMapping
     public ResponseEntity<List<ClienteDTO>> findAll() {

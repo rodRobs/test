@@ -6,6 +6,7 @@ import com.test.utils.GenericCrudService;
 import com.test.listacompras.dto.ListaCompraDTO;
 import com.test.listacompras.entity.ListaCompra;
 import com.test.listacompras.repository.ListaCompraRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,7 +18,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Service
-public class ListaCompraServiceImpl implements GenericCrudService<ListaCompraDTO>{
+@Slf4j
+public class ListaCompraServiceImpl implements GenericCrudService<ListaCompraDTO, Integer>{
 
     @Autowired
     ListaCompraRepository listaCompraRepository;
@@ -27,13 +29,14 @@ public class ListaCompraServiceImpl implements GenericCrudService<ListaCompraDTO
     @Override
     @Transactional(readOnly = true)
     public List<ListaCompraDTO> findAll() {
+        log.debug("ListaCompraServiceImpl::findAll");
         List<ListaCompra> listaCompras = listaCompraRepository.findAll();
         return listaCompras.stream().map(listaCompra -> entityToDto(listaCompra)).toList();
     }
 
     public ListaCompraDTO entityToDto(ListaCompra listaCompra) {
         return ListaCompraDTO.builder()
-                .idLista(listaCompra.getIdLista())
+                .idListaCompra(listaCompra.getIdListaCompra())
                 .cliente(entityToDtoCliente(listaCompra.getCliente()))
                 .nombre(listaCompra.getNombre())
                 .fechaRegistro(listaCompra.getFechaRegistro())
@@ -52,7 +55,8 @@ public class ListaCompraServiceImpl implements GenericCrudService<ListaCompraDTO
 
     @Override
     @Transactional(readOnly = true)
-    public ListaCompraDTO findById(int id) {
+    public ListaCompraDTO findById(Integer id) {
+        log.debug("ListaCompraServiceImpl::findById {}", id);
         ListaCompra listaCompra = listaCompraRepository.findById(id).orElseThrow(() -> {
             messageErrorNotFound(id);
             return null;
@@ -67,6 +71,7 @@ public class ListaCompraServiceImpl implements GenericCrudService<ListaCompraDTO
     @Override
     @Transactional
     public ListaCompraDTO save(ListaCompraDTO object) {
+        log.debug("ListaCompraServiceImpl::save {}", object);
         singletonValidatorConstraints.validatorConstraints(object);
         ListaCompra listaCompra = dtoToEntity(object);
         listaCompra = listaCompraRepository.save(listaCompra);
@@ -75,7 +80,7 @@ public class ListaCompraServiceImpl implements GenericCrudService<ListaCompraDTO
 
     public ListaCompra dtoToEntity(ListaCompraDTO listaCompra) {
         return ListaCompra.builder()
-                .idLista(listaCompra.getIdLista())
+                .idListaCompra(listaCompra.getIdListaCompra())
                 .cliente(entityToDtoCliente(listaCompra.getCliente()))
                 .nombre(listaCompra.getNombre())
                 .fechaRegistro(listaCompra.getFechaRegistro())
@@ -94,7 +99,8 @@ public class ListaCompraServiceImpl implements GenericCrudService<ListaCompraDTO
 
     @Override
     @Transactional
-    public ListaCompraDTO update(int id, ListaCompraDTO object) {
+    public ListaCompraDTO update(Integer id, ListaCompraDTO object) {
+        log.debug("ListaCompraServiceImpl::update {}, {}", id, object);
         validateExistsById(id);
         singletonValidatorConstraints.validatorConstraints(object);
         ListaCompra listaCompra = dtoToEntity(object);
@@ -114,7 +120,8 @@ public class ListaCompraServiceImpl implements GenericCrudService<ListaCompraDTO
 
     @Override
     @Transactional
-    public void deleteById(int id) {
+    public void deleteById(Integer id) {
+        log.debug("ListaCompraServiceImpl::deleteById {}", id);
         validateExistsById(id);
         listaCompraRepository.deleteById(id);
     }

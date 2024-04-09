@@ -22,8 +22,8 @@ public class ListaCompra implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id_lista")
-    private int idLista;
+    @Column(name = "id_lista_compra")
+    private int idListaCompra;
 
     @ManyToOne
     @JoinColumn(name = "id_cliente", referencedColumnName = "id_cliente")

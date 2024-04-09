@@ -11,7 +11,7 @@ import com.test.clientes.dto.ClienteDTO;
 @Data @NoArgsConstructor @AllArgsConstructor @Builder
 public class ListaCompraDTO {
 
-    private int idLista;
+    private int idListaCompra;
 
     private String nombre;
 

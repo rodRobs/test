@@ -15,7 +15,7 @@ import java.util.List;
 public class ListaCompraController {
 
     @Autowired
-    GenericCrudService<ListaCompraDTO> genericCrudService;
+    GenericCrudService<ListaCompraDTO, Integer> genericCrudService;
 
     @GetMapping
     public ResponseEntity<List<ListaCompraDTO>> findAll() {

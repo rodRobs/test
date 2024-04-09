@@ -17,7 +17,7 @@ import com.test.utils.SingletonValidatorConstraints;
 
 @Service
 @Slf4j
-public class ClienteServiceImpl implements GenericCrudService<ClienteDTO>{
+public class ClienteServiceImpl implements GenericCrudService<ClienteDTO, Integer>{
 
     @Autowired
     ClienteRepository clienteRepository;
@@ -42,7 +42,7 @@ public class ClienteServiceImpl implements GenericCrudService<ClienteDTO>{
 
     @Override
     @Transactional(readOnly = true)
-    public ClienteDTO findById(int id) {
+    public ClienteDTO findById(Integer id) {
         log.debug("ClienteServiceImpl::findById {}", id);
         Cliente clienteDB = clienteRepository.findById(id).orElseThrow(() -> {
             messageErrorNotFound(id);
@@ -75,7 +75,7 @@ public class ClienteServiceImpl implements GenericCrudService<ClienteDTO>{
 
     @Override
     @Transactional
-    public ClienteDTO update(int id, ClienteDTO object) {
+    public ClienteDTO update(Integer id, ClienteDTO object) {
         log.debug("ClienteServiceImpl::update {}, {}", id, object);
         singletonValidatorConstraints.validatorConstraints(object);
         validateExists(id);
@@ -97,7 +97,7 @@ public class ClienteServiceImpl implements GenericCrudService<ClienteDTO>{
 
     @Override
     @Transactional
-    public void deleteById(int id) {
+    public void deleteById(Integer id) {
         log.debug("ClienteServiceImpl::deleteById {}", id);
         validateExists(id);
         clienteRepository.deleteById(id);

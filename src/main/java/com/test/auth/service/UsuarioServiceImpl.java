@@ -29,7 +29,7 @@ import com.test.auth.jwt.JwtProvider;
 
 @Service
 @Slf4j
-public class UsuarioServiceImpl implements UsuarioService, GenericCrudService<UsuarioDTO>, AuthenticationManager {
+public class UsuarioServiceImpl implements UsuarioService, GenericCrudService<UsuarioDTO, Integer>, AuthenticationManager {
 
     private static final String AUTHENTICATION_ERROR = "Error de autenticación";
     private static final String USER_INACTIVE = "Usuario no activo";
@@ -89,7 +89,7 @@ public class UsuarioServiceImpl implements UsuarioService, GenericCrudService<Us
 
     @Override
     @Transactional(readOnly = true)
-    public UsuarioDTO findById(int id) {
+    public UsuarioDTO findById(Integer id) {
         log.debug("UsuarioServiceImpl::findById {}", id);
         Usuario usuarioDB = usuarioRepository.findById(id).orElseThrow(() -> {
             messageErrorNotFound(id);
@@ -120,10 +120,9 @@ public class UsuarioServiceImpl implements UsuarioService, GenericCrudService<Us
                 .build();
     }
 
-
     @Override
     @Transactional
-    public UsuarioDTO update(int id, UsuarioDTO object) {
+    public UsuarioDTO update(Integer id, UsuarioDTO object) {
         log.debug("UsuarioServiceImpl::update {}, {}", id, object);
         validateExistsUsuario(id);
         singletonValidatorConstraints.validatorConstraints(object);
@@ -150,7 +149,7 @@ public class UsuarioServiceImpl implements UsuarioService, GenericCrudService<Us
     }
 
     @Override
-    public void deleteById(int id) {
+    public void deleteById(Integer id) {
         log.debug("UsuarioServiceImpl::deleteById {}", id);
         validateExistsUsuario(id);
         usuarioRepository.deleteById(id);

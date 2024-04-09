@@ -17,7 +17,7 @@ import com.test.auth.service.UsuarioService;
 public class AuthController {
 
     @Autowired
-    GenericCrudService<UsuarioDTO> genericCrudService;
+    GenericCrudService<UsuarioDTO, Integer> genericCrudService;
 
     @Autowired
     UsuarioService usuarioService;
