@@ -6,6 +6,6 @@ public interface UsuarioService {
 
     UsuarioDTO findByCorreo(String correo);
 
-    TokenDTO login(UsuarioDTO usuarioDTO);
+    TokenDTO login(LoginDTO loginDTO);
 
 }

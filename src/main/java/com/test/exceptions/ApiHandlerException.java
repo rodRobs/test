@@ -33,4 +33,11 @@ public class ApiHandlerException {
         return new MessageError(exception, request.getRequestURI());
     }
 
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ExceptionHandler({Exception.class})
+    @ResponseBody
+    public MessageError fatalErrorunexpectedException(HttpServletRequest request, Exception exception) {
+        return new MessageError(exception, request.getRequestURI());
+    }
+
 }

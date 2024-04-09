@@ -28,17 +28,13 @@ public class SecurityConfig {
 
     private static SingletonPasswordEncoder singletonPasswordEncoder = SingletonPasswordEncoder.getInstance();
 
-    private static final String[] WHITE_LIST_URL = {
-            "/auths/login",
-            "/auths/"
-    };
-
     @Bean
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests( auths -> auths
-                        .requestMatchers(HttpMethod.POST, WHITE_LIST_URL).permitAll()
+                        .requestMatchers(HttpMethod.POST, "/auths").permitAll()
+                        .requestMatchers(HttpMethod.POST,"/auths/login").permitAll()
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterAfter(jwtAuthorizationFilter, UsernamePasswordAuthenticationFilter.class);

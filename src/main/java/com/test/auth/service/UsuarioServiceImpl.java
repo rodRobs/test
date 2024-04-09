@@ -4,6 +4,7 @@ import com.test.auth.dto.TokenDTO;
 import com.test.exceptions.BadRequestException;
 import com.test.exceptions.NotFoundException;
 import com.test.exceptions.UnauthorizedException;
+import com.test.roles.entity.Rol;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,15 +18,20 @@ import com.test.utils.GenericCrudService;
 import com.test.auth.dto.UsuarioDTO;
 import com.test.auth.repository.UsuarioRepository;
 import com.test.auth.entity.Usuario;
+import com.test.roles.dto.RolDTO;
 
+import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import com.test.utils.*;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.test.auth.jwt.JwtProvider;
+
+import com.test.auth.dto.LoginDTO;
 
 @Service
 @Slf4j
@@ -52,16 +58,18 @@ public class UsuarioServiceImpl implements UsuarioService, GenericCrudService<Us
         if (Objects.isNull(usuarioDB)) {
             throw new BadRequestException("No existe usuario con el correo: "+ correo);
         }
-        return entityToDto(usuarioDB);
+        UsuarioDTO usuarioDTO = entityToDto(usuarioDB);
+        usuarioDTO.setContrasena(usuarioDB.getContrasena());
+        return usuarioDTO;
     }
 
     @Override
     @Transactional(readOnly = true)
-    public TokenDTO login(UsuarioDTO usuarioDTO) {
-        log.debug("AuthServiceImpl::login {}", usuarioDTO);
-        singletonValidatorConstraints.validatorConstraints(usuarioDTO);
-        String authPassword = decodePassword(usuarioDTO.getContrasena());
-        Authentication authentication = authenticate(new UsernamePasswordAuthenticationToken(usuarioDTO.getCorreo(), authPassword));
+    public TokenDTO login(LoginDTO loginDTO) {
+        log.debug("AuthServiceImpl::login {}", loginDTO);
+        singletonValidatorConstraints.validatorConstraints(loginDTO);
+        String authPassword = decodePassword(loginDTO.getContrasena());
+        Authentication authentication = authenticate(new UsernamePasswordAuthenticationToken(loginDTO.getCorreo(), authPassword));
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String jwt = jwtProvider.generateToken(authentication);
         return new TokenDTO(jwt);
@@ -73,9 +81,20 @@ public class UsuarioServiceImpl implements UsuarioService, GenericCrudService<Us
     }
 
     public UsuarioDTO entityToDto(Usuario usuario) {
+        log.info("Usuario: {}",usuario);
         return UsuarioDTO.builder()
                 .idUsuario(usuario.getIdUsuario())
                 .correo(usuario.getCorreo())
+                .roles(usuario.getRolesUsuario().stream().map(rol -> entityToDtoRol(rol)).collect(Collectors.toSet()))
+                .fechaCreacion(usuario.getFechaCreacion())
+                .activo(usuario.isActivo())
+                .build();
+    }
+
+    public RolDTO entityToDtoRol(Rol rol) {
+        return RolDTO.builder()
+                .idRol(rol.getIdRol())
+                .nombre(rol.getNombre())
                 .build();
     }
 
@@ -106,10 +125,19 @@ public class UsuarioServiceImpl implements UsuarioService, GenericCrudService<Us
     @Transactional
     public UsuarioDTO save(UsuarioDTO object) {
         log.debug("UsuarioServiceImpl::save {}", object);
-        singletonValidatorConstraints.validatorConstraints(object);
+        completeValues(object);
         Usuario usuario =  dtoToEntity(object);
         usuario = usuarioRepository.save(usuario);
         return entityToDto(usuario);
+    }
+
+    public UsuarioDTO completeValues(UsuarioDTO usuario) {
+        singletonValidatorConstraints.validatorConstraints(usuario);
+        String encodeContrasena = singletonPasswordEncoder.passwordEncoder().encode(usuario.getContrasena());
+        usuario.setContrasena(encodeContrasena);
+        usuario.setActivo(true);
+        usuario.setFechaCreacion(LocalDateTime.now());
+        return usuario;
     }
 
     public Usuario dtoToEntity(UsuarioDTO usuario) {
@@ -117,6 +145,16 @@ public class UsuarioServiceImpl implements UsuarioService, GenericCrudService<Us
                 .idUsuario(usuario.getIdUsuario())
                 .correo(usuario.getCorreo())
                 .contrasena(usuario.getContrasena())
+                .rolesUsuario(usuario.getRoles().stream().map(rol -> dtoToEntityRol(rol)).collect(Collectors.toSet()))
+                .activo(usuario.isActivo())
+                .fechaCreacion(usuario.getFechaCreacion())
+                .build();
+    }
+
+    public Rol dtoToEntityRol(RolDTO rol) {
+        return Rol.builder()
+                .idRol(rol.getIdRol())
+                .nombre(rol.getNombre())
                 .build();
     }
 

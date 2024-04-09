@@ -1,4 +1,4 @@
-package com.test.auth.dto;
+package com.test.roles.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 
-import com.test.auth.enums.NombreRol;
+import com.test.roles.enums.*;
 
 @Data @AllArgsConstructor @NoArgsConstructor @Builder
 public class RolDTO implements Serializable {
@@ -17,5 +17,9 @@ public class RolDTO implements Serializable {
     private int idRol;
 
     private NombreRol nombre;
+
+    public RolDTO(NombreRol nombre) {
+        this.nombre = nombre;
+    }
 
 }

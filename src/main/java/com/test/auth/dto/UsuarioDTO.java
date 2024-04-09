@@ -1,6 +1,8 @@
 package com.test.auth.dto;
 
-import com.test.auth.entity.Rol;
+import com.test.roles.dto.RolDTO;
+import com.test.roles.entity.Rol;
+import jakarta.persistence.PrePersist;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -9,7 +11,10 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -21,13 +26,20 @@ public class UsuarioDTO implements Serializable, UserDetails {
 
     private int idUsuario;
 
+    @NotNull(message = "Correo del usuario es requerido")
+    @Size(max = 80, message = "Longitud de correo máximo es de 80 caracteres")
     private String correo;
 
+    @NotNull(message = "Constraseña del usuario es requerido")
+    @Size(max = 30, message = "Longitud de la contraseña máxima es de 30 caracteres")
     private String contrasena;
 
+    @NotNull(message = "Roles del usuario son requeridos")
     private Set<RolDTO> roles;
 
     private boolean activo;
+
+    private LocalDateTime fechaCreacion;
 
     private Set<? extends GrantedAuthority> authorities;
 
@@ -68,5 +80,11 @@ public class UsuarioDTO implements Serializable, UserDetails {
     @Override
     public boolean isEnabled() {
         return false;
+    }
+
+    @PrePersist
+    public void setValuesPrePersist() {
+        this.fechaCreacion = LocalDateTime.now();
+        this.activo = true;
     }
 }

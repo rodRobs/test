@@ -1,4 +1,4 @@
-package com.test.auth.entity;
+package com.test.roles.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 
-import com.test.auth.enums.NombreRol;
+import com.test.roles.enums.*;
 
 @Entity
 @Table(name = "rol")

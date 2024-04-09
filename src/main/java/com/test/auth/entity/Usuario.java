@@ -1,10 +1,8 @@
 package com.test.auth.entity;
 
+import com.test.roles.entity.Rol;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.io.Serial;
@@ -15,7 +13,7 @@ import java.util.Set;
 
 @Entity
 @Table(name = "usuario")
-@Data @NoArgsConstructor @AllArgsConstructor @Builder
+@Data @NoArgsConstructor @AllArgsConstructor @Builder @ToString @EqualsAndHashCode
 public class Usuario implements Serializable {
 
     @Serial
@@ -29,7 +27,7 @@ public class Usuario implements Serializable {
     @Column(name = "correo", length = 80, nullable = false, unique = true)
     private String correo;
 
-    @Column(name = "constrasena", length = 30, nullable = false)
+    @Column(name = "constrasena", length = 120, nullable = false)
     private String contrasena;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd")
