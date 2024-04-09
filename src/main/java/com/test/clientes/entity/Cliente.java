@@ -8,6 +8,9 @@ import lombok.NoArgsConstructor;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.List;
+
+import com.test.listacompras.entity.ListaCompra;
 
 @Entity
 @Table(name = "cliente")
@@ -19,7 +22,7 @@ public class Cliente implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "idCliente")
+    @Column(name = "id_cliente")
     private Integer idCliente;
 
     @Column(name = "nombre", length = 50, nullable = false)
@@ -27,5 +30,8 @@ public class Cliente implements Serializable {
 
     @Column(name = "activo")
     private boolean activo;
+
+    @OneToMany(mappedBy = "cliente", fetch = FetchType.LAZY)
+    private List<ListaCompra> listaCompras;
 
 }
