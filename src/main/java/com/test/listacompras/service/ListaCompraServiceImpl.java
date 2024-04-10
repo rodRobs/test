@@ -121,7 +121,7 @@ public class ListaCompraServiceImpl implements GenericCrudService<ListaCompraDTO
         log.debug("ListaCompraServiceImpl::update {}, {}", id, object);
         validateExistsById(id);
         singletonValidatorConstraints.validatorConstraints(object);
-        ListaCompra listaCompra = dtoToEntity(object);
+        ListaCompra listaCompra = new ListaCompra(object);
         listaCompra.setFechaActualizacion(LocalDateTime.now());
         listaCompra = listaCompraRepository.saveAndFlush(listaCompra);
         return entityToDto(listaCompra);

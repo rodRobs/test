@@ -2,6 +2,8 @@ package com.test.listacompradetalle.service;
 
 import com.test.clientes.entity.Cliente;
 import com.test.exceptions.NotFoundException;
+import com.test.listacompras.dto.ListaCompraDTO;
+import com.test.listacompras.entity.ListaCompra;
 import com.test.utils.*;
 import com.test.listacompradetalle.dto.ListaCompraDetalleDTO;
 import lombok.extern.slf4j.Slf4j;
@@ -34,7 +36,29 @@ public class ListaCompraDetalleServiceImpl implements GenericCrudService<ListaCo
 
     public ListaCompraDetalleDTO entityToDto(ListaCompraDetalle listaCompraDetalle) {
         return ListaCompraDetalleDTO.builder()
+                .listaCompra(entityToDtoListaCompra(listaCompraDetalle.getId().getListaCompra()))
+                .producto(entityToDtoProducto(listaCompraDetalle.getId().getProducto()))
                 .cantidad(listaCompraDetalle.getCantidad())
+                .build();
+    }
+
+    public ListaCompraDTO entityToDtoListaCompra(ListaCompra listaCompra) {
+        return ListaCompraDTO.builder()
+                .idListaCompra(listaCompra.getIdListaCompra())
+                .nombre(listaCompra.getNombre())
+                .idCliente(listaCompra.getCliente().getIdCliente())
+                .activo(listaCompra.isActivo())
+                .fechaRegistro(listaCompra.getFechaRegistro())
+                .fechaActualizacion(listaCompra.getFechaActualizacion())
+                .build();
+    }
+
+    public ProductoDTO entityToDtoProducto(Producto producto) {
+        return ProductoDTO.builder()
+                .idProducto(producto.getIdProducto())
+                .descripcion(producto.getDescripcion())
+                .clave(producto.getClave())
+                .activo(producto.isActivo())
                 .build();
     }
 
