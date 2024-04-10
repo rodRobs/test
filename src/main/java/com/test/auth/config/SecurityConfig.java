@@ -24,8 +24,6 @@ public class SecurityConfig {
 
     private final JwtAuthorizationFilter jwtAuthorizationFilter;
 
-    private final UserDetailsServiceImpl userDetailsService;
-
     private static SingletonPasswordEncoder singletonPasswordEncoder = SingletonPasswordEncoder.getInstance();
 
     @Bean
@@ -33,6 +31,7 @@ public class SecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests( auths -> auths
+                        //.requestMatchers("/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/auths").permitAll()
                         .requestMatchers(HttpMethod.POST,"/auths/login").permitAll()
                         .anyRequest().authenticated())

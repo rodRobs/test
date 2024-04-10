@@ -16,11 +16,11 @@ public class Producto implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    //@GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_producto")
     private int idProducto;
 
-    @Column(name = "clave", length = 15)
+    @Column(name = "clave", length = 15, unique = true)
     private String clave;
 
     @Column(name = "descripcion", length = 150)

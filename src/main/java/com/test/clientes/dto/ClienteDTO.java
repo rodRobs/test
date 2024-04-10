@@ -14,7 +14,7 @@ public class ClienteDTO implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    private int idCliente;
+    private Long idCliente;
 
     @NotNull(message = "Nombre del cliente es requerido")
     @Size(max = 50, message = "Longitud máxima del nombre del cliente es de 50 caracteres")

@@ -1,6 +1,7 @@
 package com.test.listacompras.entity;
 
 import com.test.clientes.entity.Cliente;
+import com.test.listacompras.dto.ListaCompraDTO;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,6 +12,10 @@ import org.springframework.format.annotation.DateTimeFormat;
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.List;
+
+import com.test.listacompradetalle.entity.ListaCompraDetalle;
+import com.test.listacompradetalle.dto.ListaCompraDetalleDTO;
 
 @Entity
 @Table(name = "lista_compra")
@@ -25,7 +30,7 @@ public class ListaCompra implements Serializable {
     @Column(name = "id_lista_compra")
     private int idListaCompra;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_cliente", referencedColumnName = "id_cliente")
     private Cliente cliente;
 
@@ -42,5 +47,29 @@ public class ListaCompra implements Serializable {
 
     @Column(name = "activo")
     private boolean activo;
+
+    @OneToMany(mappedBy = "id.listaCompra", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<ListaCompraDetalle> listaCompraDetalles;
+
+    public ListaCompra(ListaCompraDTO listaCompra) {
+        this.setIdListaCompra(listaCompra.getIdListaCompra());
+        this.setCliente(listaCompra.getIdCliente());
+        this.setNombre(listaCompra.getNombre());
+        this.setFechaRegistro(listaCompra.getFechaRegistro());
+        this.setFechaActualizacion(listaCompra.getFechaActualizacion());
+        this.setListaCompraDetallesDTO(listaCompra.getListaCompraDetalles());
+    }
+
+    public void setCliente(Long idCliente) {
+        this.cliente = new Cliente();
+        this.cliente.setIdCliente(idCliente);
+    }
+
+    public void setListaCompraDetallesDTO(List<ListaCompraDetalleDTO> listaCompraDetalleDTOS) {
+        this.listaCompraDetalles = listaCompraDetalleDTOS.stream().map(ListaCompraDetalle::new).toList();
+        this.listaCompraDetalles.forEach(listaCompraDetalle -> {
+            listaCompraDetalle.getId().setListaCompra(this);
+        });
+    }
 
 }

@@ -15,7 +15,7 @@ import java.util.List;
 public class ClienteController {
 
     @Autowired
-    GenericCrudService<ClienteDTO, Integer> genericCRUDService;
+    GenericCrudService<ClienteDTO, Long> genericCRUDService;
 
     @GetMapping
     public ResponseEntity<List<ClienteDTO>> findAll() {
@@ -23,7 +23,7 @@ public class ClienteController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ClienteDTO> findById(@PathVariable int id) {
+    public ResponseEntity<ClienteDTO> findById(@PathVariable Long id) {
         return new ResponseEntity<>(genericCRUDService.findById(id), HttpStatus.OK);
     }
 
@@ -33,13 +33,13 @@ public class ClienteController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ClienteDTO> update(@PathVariable int id, @RequestBody ClienteDTO clienteDTO) {
+    public ResponseEntity<ClienteDTO> update(@PathVariable Long id, @RequestBody ClienteDTO clienteDTO) {
         return new ResponseEntity<>(genericCRUDService.update(id, clienteDTO), HttpStatus.ACCEPTED);
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteById(@PathVariable int id) {
+    public void deleteById(@PathVariable Long id) {
         genericCRUDService.deleteById(id);
     }
 

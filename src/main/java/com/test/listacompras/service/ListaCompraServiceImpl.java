@@ -2,6 +2,7 @@ package com.test.listacompras.service;
 
 import com.test.clientes.entity.Cliente;
 import com.test.exceptions.NotFoundException;
+import com.test.productos.dto.ProductoDTO;
 import com.test.utils.GenericCrudService;
 import com.test.listacompras.dto.ListaCompraDTO;
 import com.test.listacompras.entity.ListaCompra;
@@ -10,16 +11,18 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.test.clientes.dto.ClienteDTO;
+import com.test.listacompradetalle.entity.ListaCompraDetalle;
+import com.test.listacompradetalle.dto.ListaCompraDetalleDTO;
 
 import com.test.utils.*;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
 @Slf4j
-public class ListaCompraServiceImpl implements GenericCrudService<ListaCompraDTO, Integer>{
+public class ListaCompraServiceImpl implements GenericCrudService<ListaCompraDTO, Integer>, ListaCompraService{
 
     @Autowired
     ListaCompraRepository listaCompraRepository;
@@ -31,25 +34,34 @@ public class ListaCompraServiceImpl implements GenericCrudService<ListaCompraDTO
     public List<ListaCompraDTO> findAll() {
         log.debug("ListaCompraServiceImpl::findAll");
         List<ListaCompra> listaCompras = listaCompraRepository.findAll();
-        return listaCompras.stream().map(listaCompra -> entityToDto(listaCompra)).toList();
+        return entityListToDtoList(listaCompras);
+    }
+
+    public List<ListaCompraDTO> entityListToDtoList(List<ListaCompra> listaCompras) {
+        return listaCompras.stream().map(this::entityToDto).toList();
     }
 
     public ListaCompraDTO entityToDto(ListaCompra listaCompra) {
         return ListaCompraDTO.builder()
                 .idListaCompra(listaCompra.getIdListaCompra())
-                .cliente(entityToDtoCliente(listaCompra.getCliente()))
+                .idCliente(listaCompra.getCliente().getIdCliente())
                 .nombre(listaCompra.getNombre())
                 .fechaRegistro(listaCompra.getFechaRegistro())
                 .fechaActualizacion(listaCompra.getFechaActualizacion())
                 .activo(listaCompra.isActivo())
+                .listaCompraDetalles(entityListToDtoListListaCompraDetalle(listaCompra.getListaCompraDetalles()))
                 .build();
     }
 
-    public ClienteDTO entityToDtoCliente(Cliente cliente) {
-        return ClienteDTO.builder()
-                .idCliente(cliente.getIdCliente())
-                .nombre(cliente.getNombre())
-                .activo(cliente.isActivo())
+    public List<ListaCompraDetalleDTO> entityListToDtoListListaCompraDetalle(List<ListaCompraDetalle> listaCompraDetalles) {
+        return listaCompraDetalles.stream().map(this::entityToDtoListaCompraDetalle).toList();
+    }
+
+    public ListaCompraDetalleDTO entityToDtoListaCompraDetalle(ListaCompraDetalle listaCompraDetalle) {
+        return ListaCompraDetalleDTO.builder()
+                .listaCompra(ListaCompraDTO.builder().idListaCompra(listaCompraDetalle.getId().getListaCompra().getIdListaCompra()).build())
+                .producto(ProductoDTO.builder().idProducto(listaCompraDetalle.getId().getProducto().getIdProducto()).clave(listaCompraDetalle.getId().getProducto().getClave()).descripcion(listaCompraDetalle.getId().getProducto().getDescripcion()).build())
+                .cantidad(listaCompraDetalle.getCantidad())
                 .build();
     }
 
@@ -61,11 +73,12 @@ public class ListaCompraServiceImpl implements GenericCrudService<ListaCompraDTO
             messageErrorNotFound(id);
             return null;
         });
+        log.info("Lista Compra {} ",listaCompra);
         return entityToDto(listaCompra);
     }
 
     public void messageErrorNotFound(int id) {
-        throw new NotFoundException("No se encontro lista de compra con el id: "+id);
+        throw new NotFoundException("No se encontró lista de compra con el id: "+id);
     }
 
     @Override
@@ -73,15 +86,22 @@ public class ListaCompraServiceImpl implements GenericCrudService<ListaCompraDTO
     public ListaCompraDTO save(ListaCompraDTO object) {
         log.debug("ListaCompraServiceImpl::save {}", object);
         singletonValidatorConstraints.validatorConstraints(object);
-        ListaCompra listaCompra = dtoToEntity(object);
+        object = completeValuesData(object);
+        ListaCompra listaCompra = new ListaCompra(object);
         listaCompra = listaCompraRepository.save(listaCompra);
         return entityToDto(listaCompra);
+    }
+
+    public ListaCompraDTO completeValuesData(ListaCompraDTO listaCompraDTO) {
+        listaCompraDTO.setFechaRegistro(LocalDateTime.now());
+        listaCompraDTO.setActivo(true);
+        return listaCompraDTO;
     }
 
     public ListaCompra dtoToEntity(ListaCompraDTO listaCompra) {
         return ListaCompra.builder()
                 .idListaCompra(listaCompra.getIdListaCompra())
-                .cliente(entityToDtoCliente(listaCompra.getCliente()))
+                .cliente(dtoToEntityCliente(listaCompra.getIdCliente()))
                 .nombre(listaCompra.getNombre())
                 .fechaRegistro(listaCompra.getFechaRegistro())
                 .fechaActualizacion(listaCompra.getFechaActualizacion())
@@ -89,11 +109,9 @@ public class ListaCompraServiceImpl implements GenericCrudService<ListaCompraDTO
                 .build();
     }
 
-    public Cliente entityToDtoCliente(ClienteDTO cliente) {
+    public Cliente dtoToEntityCliente(Long idCliente) {
         return Cliente.builder()
-                .idCliente(cliente.getIdCliente())
-                .nombre(cliente.getNombre())
-                .activo(cliente.isActivo())
+                .idCliente(idCliente)
                 .build();
     }
 
@@ -104,6 +122,7 @@ public class ListaCompraServiceImpl implements GenericCrudService<ListaCompraDTO
         validateExistsById(id);
         singletonValidatorConstraints.validatorConstraints(object);
         ListaCompra listaCompra = dtoToEntity(object);
+        listaCompra.setFechaActualizacion(LocalDateTime.now());
         listaCompra = listaCompraRepository.saveAndFlush(listaCompra);
         return entityToDto(listaCompra);
     }
@@ -124,5 +143,12 @@ public class ListaCompraServiceImpl implements GenericCrudService<ListaCompraDTO
         log.debug("ListaCompraServiceImpl::deleteById {}", id);
         validateExistsById(id);
         listaCompraRepository.deleteById(id);
+    }
+
+    @Override
+    public List<ListaCompraDTO> findByIdCliente(int idCliente) {
+        log.debug("ListaCompraServiceImpl::findByIdCliente {}", idCliente);
+        List<ListaCompra> listaCompras = listaCompraRepository.findByClienteIdCliente(idCliente);
+        return entityListToDtoList(listaCompras);
     }
 }

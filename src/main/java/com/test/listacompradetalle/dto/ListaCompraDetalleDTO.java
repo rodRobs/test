@@ -25,4 +25,6 @@ public class ListaCompraDetalleDTO implements Serializable {
 
     private int cantidad;
 
+
+
 }

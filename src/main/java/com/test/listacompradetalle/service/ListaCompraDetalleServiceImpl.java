@@ -1,7 +1,6 @@
 package com.test.listacompradetalle.service;
 
 import com.test.clientes.entity.Cliente;
-import com.test.clientes.dto.ClienteDTO;
 import com.test.exceptions.NotFoundException;
 import com.test.utils.*;
 import com.test.listacompradetalle.dto.ListaCompraDetalleDTO;
@@ -10,8 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.test.listacompradetalle.repository.ListaCompraDetalleRepository;
 import com.test.listacompradetalle.entity.*;
-import com.test.listacompras.entity.ListaCompra;
-import com.test.listacompras.dto.ListaCompraDTO;
 import com.test.productos.entity.Producto;
 import com.test.productos.dto.ProductoDTO;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,36 +29,12 @@ public class ListaCompraDetalleServiceImpl implements GenericCrudService<ListaCo
     public List<ListaCompraDetalleDTO> findAll() {
         log.debug("ListaCompraDetalleServiceImpl::findAll");
         List<ListaCompraDetalle> listaCompraDetalles = listaCompraDetalleRepository.findAll();
-        return listaCompraDetalles.stream().map(listaCompraDetalle -> entityToDto(listaCompraDetalle)).toList();
+        return listaCompraDetalles.stream().map(this::entityToDto).toList();
     }
 
     public ListaCompraDetalleDTO entityToDto(ListaCompraDetalle listaCompraDetalle) {
         return ListaCompraDetalleDTO.builder()
-                .listaCompra(entityToDtoListaCompra(listaCompraDetalle.getListaCompra()))
-                .producto(entityToDtoProducto(listaCompraDetalle.getProducto()))
                 .cantidad(listaCompraDetalle.getCantidad())
-                .build();
-    }
-
-    public ListaCompraDTO entityToDtoListaCompra(ListaCompra listaCompra) {
-        return ListaCompraDTO.builder()
-                .idListaCompra(listaCompra.getIdListaCompra())
-                .cliente(entityToDtoCliente(listaCompra.getCliente()))
-                .build();
-    }
-
-    public ClienteDTO entityToDtoCliente(Cliente cliente) {
-        return ClienteDTO.builder()
-                .idCliente(cliente.getIdCliente())
-                .nombre(cliente.getNombre())
-                .build();
-    }
-
-    public ProductoDTO entityToDtoProducto(Producto producto) {
-        return ProductoDTO.builder()
-                .idProducto(producto.getIdProducto())
-                .clave(producto.getClave())
-                .descripcion(producto.getDescripcion())
                 .build();
     }
 
@@ -77,7 +50,7 @@ public class ListaCompraDetalleServiceImpl implements GenericCrudService<ListaCo
     }
 
     public void messageErrorNotFound(ListaCompraDetallePK listaCompraDetallePK) {
-        throw new NotFoundException("No se encontro detalle de lista de compra con id de producto: " + listaCompraDetallePK.getIdProducto() + " y id de lista compra: " + listaCompraDetallePK.getIdListaCompra());
+        throw new NotFoundException("No se encontro detalle de lista de compra con id de producto: " + listaCompraDetallePK.getProducto().getIdProducto() + " y id de lista compra: " + listaCompraDetallePK.getListaCompra().getIdListaCompra());
     }
 
     @Override
@@ -92,23 +65,13 @@ public class ListaCompraDetalleServiceImpl implements GenericCrudService<ListaCo
 
     public ListaCompraDetalle dtoToEntity(ListaCompraDetalleDTO listaCompraDetalle) {
         return ListaCompraDetalle.builder()
-                .listaCompra(dtoToEntityListaCompra(listaCompraDetalle.getListaCompra()))
-                .producto(dtoToEntityProducto(listaCompraDetalle.getProducto()))
                 .cantidad(listaCompraDetalle.getCantidad())
                 .build();
     }
 
-    public ListaCompra dtoToEntityListaCompra(ListaCompraDTO listaCompra) {
-        return ListaCompra.builder()
-                .idListaCompra(listaCompra.getIdListaCompra())
-                .cliente(dtoToEntityCliente(listaCompra.getCliente()))
-                .build();
-    }
-
-    public Cliente dtoToEntityCliente(ClienteDTO cliente) {
+    public Cliente dtoToEntityCliente(Long idCliente) {
         return Cliente.builder()
-                .idCliente(cliente.getIdCliente())
-                .nombre(cliente.getNombre())
+                .idCliente(idCliente)
                 .build();
     }
 

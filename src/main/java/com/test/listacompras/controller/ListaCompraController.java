@@ -9,6 +9,7 @@ import com.test.utils.*;
 import com.test.listacompras.dto.ListaCompraDTO;
 
 import java.util.List;
+import com.test.listacompras.service.ListaCompraService;
 
 @RestController
 @RequestMapping("/{lista-compras}")
@@ -16,6 +17,9 @@ public class ListaCompraController {
 
     @Autowired
     GenericCrudService<ListaCompraDTO, Integer> genericCrudService;
+
+    @Autowired
+    ListaCompraService listaCompraService;
 
     @GetMapping
     public ResponseEntity<List<ListaCompraDTO>> findAll() {
@@ -41,5 +45,10 @@ public class ListaCompraController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteById(@PathVariable int id) {
         genericCrudService.deleteById(id);
+    }
+
+    @GetMapping("/cliente/{idCliente}")
+    public ResponseEntity<List<ListaCompraDTO>> findByIdCliente(@PathVariable int idCliente) {
+        return new ResponseEntity<>(listaCompraService.findByIdCliente(idCliente), HttpStatus.OK);
     }
 }

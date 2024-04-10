@@ -17,7 +17,7 @@ import com.test.utils.SingletonValidatorConstraints;
 
 @Service
 @Slf4j
-public class ClienteServiceImpl implements GenericCrudService<ClienteDTO, Integer>{
+public class ClienteServiceImpl implements GenericCrudService<ClienteDTO, Long>{
 
     @Autowired
     ClienteRepository clienteRepository;
@@ -42,7 +42,7 @@ public class ClienteServiceImpl implements GenericCrudService<ClienteDTO, Intege
 
     @Override
     @Transactional(readOnly = true)
-    public ClienteDTO findById(Integer id) {
+    public ClienteDTO findById(Long id) {
         log.debug("ClienteServiceImpl::findById {}", id);
         Cliente clienteDB = clienteRepository.findById(id).orElseThrow(() -> {
             messageErrorNotFound(id);
@@ -51,8 +51,8 @@ public class ClienteServiceImpl implements GenericCrudService<ClienteDTO, Intege
         return entityToDTO(clienteDB);
     }
 
-    public void messageErrorNotFound(int id) {
-        throw new NotFoundException("No se encontro cliente con id: "+id);
+    public void messageErrorNotFound(Long id) {
+        throw new NotFoundException("No se encontró cliente con id: "+id);
     }
 
     @Override
@@ -75,7 +75,7 @@ public class ClienteServiceImpl implements GenericCrudService<ClienteDTO, Intege
 
     @Override
     @Transactional
-    public ClienteDTO update(Integer id, ClienteDTO object) {
+    public ClienteDTO update(Long id, ClienteDTO object) {
         log.debug("ClienteServiceImpl::update {}, {}", id, object);
         singletonValidatorConstraints.validatorConstraints(object);
         validateExists(id);
@@ -84,20 +84,20 @@ public class ClienteServiceImpl implements GenericCrudService<ClienteDTO, Intege
         return entityToDTO(cliente);
     }
 
-    public void validateExists(int id) {
+    public void validateExists(Long id) {
         boolean clienteExists = existsCliente(id);
         if (!clienteExists) {
             messageErrorNotFound(id);
         }
     }
 
-    public boolean existsCliente(int id) {
+    public boolean existsCliente(Long id) {
         return clienteRepository.existsById(id);
     }
 
     @Override
     @Transactional
-    public void deleteById(Integer id) {
+    public void deleteById(Long id) {
         log.debug("ClienteServiceImpl::deleteById {}", id);
         validateExists(id);
         clienteRepository.deleteById(id);

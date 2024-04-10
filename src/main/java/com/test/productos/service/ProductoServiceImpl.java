@@ -28,7 +28,7 @@ public class ProductoServiceImpl implements GenericCrudService<ProductoDTO, Inte
     public List<ProductoDTO> findAll() {
         log.debug("ProductoServiceImpl::findAll");
         List<Producto> productoList = productoRepository.findAll();
-        return productoList.stream().map(producto -> entityToDto(producto)).toList();
+        return productoList.stream().map(this::entityToDto).toList();
     }
 
     public ProductoDTO entityToDto(Producto producto) {

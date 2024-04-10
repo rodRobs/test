@@ -5,7 +5,6 @@ import com.test.exceptions.BadRequestException;
 import com.test.exceptions.NotFoundException;
 import com.test.exceptions.UnauthorizedException;
 import com.test.roles.entity.Rol;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -85,7 +84,7 @@ public class UsuarioServiceImpl implements UsuarioService, GenericCrudService<Us
         return UsuarioDTO.builder()
                 .idUsuario(usuario.getIdUsuario())
                 .correo(usuario.getCorreo())
-                .roles(usuario.getRolesUsuario().stream().map(rol -> entityToDtoRol(rol)).collect(Collectors.toSet()))
+                .roles(usuario.getRolesUsuario().stream().map(this::entityToDtoRol).collect(Collectors.toSet()))
                 .fechaCreacion(usuario.getFechaCreacion())
                 .activo(usuario.isActivo())
                 .build();
@@ -103,7 +102,7 @@ public class UsuarioServiceImpl implements UsuarioService, GenericCrudService<Us
     public List<UsuarioDTO> findAll() {
         log.debug("UsuarioServiceImpl::findAll");
         List<Usuario> usuarioList = usuarioRepository.findAll();
-        return usuarioList.stream().map(usuario -> entityToDto(usuario)).toList();
+        return usuarioList.stream().map(this::entityToDto).toList();
     }
 
     @Override
@@ -145,7 +144,7 @@ public class UsuarioServiceImpl implements UsuarioService, GenericCrudService<Us
                 .idUsuario(usuario.getIdUsuario())
                 .correo(usuario.getCorreo())
                 .contrasena(usuario.getContrasena())
-                .rolesUsuario(usuario.getRoles().stream().map(rol -> dtoToEntityRol(rol)).collect(Collectors.toSet()))
+                .rolesUsuario(usuario.getRoles().stream().map(this::dtoToEntityRol).collect(Collectors.toSet()))
                 .activo(usuario.isActivo())
                 .fechaCreacion(usuario.getFechaCreacion())
                 .build();
@@ -193,8 +192,8 @@ public class UsuarioServiceImpl implements UsuarioService, GenericCrudService<Us
         usuarioRepository.deleteById(id);
     }
 
-    @SneakyThrows
     @Override
+    @Transactional
     public Authentication authenticate(Authentication authentication) {
         log.debug("AuthServiceImpl::authenticate {}", authentication);
         UsuarioDTO usuarioDTO = findByCorreo(authentication.getName());

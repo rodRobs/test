@@ -1,12 +1,11 @@
 package com.test.listacompradetalle.entity;
 
-import com.test.productos.entity.Producto;
+import com.test.listacompradetalle.dto.ListaCompraDetalleDTO;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.io.Serializable;
-
-import com.test.listacompras.entity.ListaCompra;
+import java.util.Objects;
 
 @Entity
 @Table(name = "lista_compra_detalle")
@@ -18,16 +17,12 @@ public class ListaCompraDetalle implements Serializable {
     @EmbeddedId
     private ListaCompraDetallePK id;
 
-    @ManyToOne
-    @JoinColumn(name = "id_lista_compra", referencedColumnName = "id_lista_compra", insertable=false, updatable=false)
-    private ListaCompra listaCompra;
-
-    @ManyToOne
-    @JoinColumn(name = "id_producto", referencedColumnName = "id_producto", insertable=false, updatable=false)
-    private Producto producto;
-
     @Column(name = "cantidad")
     private int cantidad;
 
+    public ListaCompraDetalle(ListaCompraDetalleDTO listaCompraDetalle)  {
+        this.setId(new ListaCompraDetallePK((Objects.isNull(listaCompraDetalle.getListaCompra())) ? 0 : listaCompraDetalle.getListaCompra().getIdListaCompra(), listaCompraDetalle.getProducto().getIdProducto()));
+        this.setCantidad(listaCompraDetalle.getCantidad());
+    }
 
 }
